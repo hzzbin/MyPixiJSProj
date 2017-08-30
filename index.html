@@ -8,6 +8,15 @@
     <script src="pixi.js"></script>
     <body>
         <script type="text/javascript">
+            //Aliases  代码更简洁，防止Pixi API频繁变动
+            var TextureCache = PIXI.utils.TextureCache;
+            var Container = PIXI.Container,
+                autoDetectRenderer = PIXI.autoDetectRender,
+                loader = PIXI.loader,
+                resources = PIXI.loader.resources,
+                Sprite = PIXI.Sprite;
+            
+            
             var type = "WebGL"
             if(!PIXI.utils.isWebGLSupported()) {
                 type = "canvas"
@@ -47,14 +56,15 @@
             
            function setup() {
                
+               var texture = TextureCache["img/head.jpg"]
                 
-                var sprite = new PIXI.Sprite(PIXI.loader.resources["img/head.jpg"].texture);
+               var sprite = new PIXI.Sprite(PIXI.loader.resources["img/head.jpg"].texture);
 
-                stage.addChild(sprite);
-               
-                sprite.visible = false;
-                
-                renderer.render(stage);
+               stage.addChild(sprite);
+
+               sprite.visible = false;
+
+               renderer.render(stage);
             }
             
             
