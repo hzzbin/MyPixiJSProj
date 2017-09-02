@@ -21,17 +21,106 @@
                 renderer = autoDetectRenderer(500, 500);
             document.body.appendChild(renderer.view);
             
-            loader.add("img/head.jpg")..on("progress", loadProgressHandler).load(setup);
+            renderer.resize(window.innerWidth, window.innerHeight);
             
-            function loadProgressHandler() {
-                console.log("loading");
+            renderer.backgroundColor = 0x061239;
+            
+            loader.add("img/head.jpg").add("img/Boom.json").on("progress", loadProgressHandler).load(setup);
+            
+            function loadProgressHandler(loader, resource) {
+                //Display the file `url` currently being loaded
+                console.log("loading: " + resource.url);
+                
+                //Display the percentage of files currently loaded
+                console.log("loading: " + loader.progress + "%");
             }
             
             function setup() {
-                var head = new Sprite(resources["img/head.jpg"].texture);
-                stage.addChild(head);
+               /* var head = new Sprite(resources["img/head.jpg"].texture);
+                head.x = 30;
+                head.y = 30;
+                head.position.set(200, 200);
+                head.width = 80;
+                head.height = 120;
+                head.scale.set(0.5,0.5);
+                
+                head.anchor.set(0.5, 0.5);
+                head.rotation = 0.5;
+                stage.addChild(head);*/
+                
+                var id = resources["img/Boom.json"].textures; 
+                
+                var boom_center = [],
+                    boom_coffin = [],
+                    boom_end_b = [],
+                    boom_end_l = [],
+                    boom_end_r = [],
+                    boom_end_t = [],
+                    boom_middle_h = [],
+                    boom_middle_v = [];
+                
+                for(var i = 0; i < 12; i++) {
+                    var frameId = "boom_center_";
+                    var t = i + 1;
+                    var index = ("000" + t).slice(-4) + ".png";
+                    
+                    boom_center[i] = new Sprite(id[frameId + index]);
+                    
+                    frameId = "boom_coffin_";
+                    boom_coffin[i] = new Sprite(id[frameId + index]);
+                    
+                    frameId = "boom_end_b_";
+                    boom_end_b[i] = new Sprite(id[frameId + index]);
+                    
+                    frameId = "boom_end_l_";
+                    boom_end_l[i] = new Sprite(id[frameId + index]);
+                    
+                    frameId = "boom_end_r_";
+                    boom_end_r[i] = new Sprite(id[frameId + index]);
+                    
+                    frameId = "boom_end_t_";
+                    boom_end_t[i] = new Sprite(id[frameId + index]);
+                    
+                    frameId = "boom_middle_h_";
+                    boom_middle_h[i] = new Sprite(id[frameId + index]);
+                    
+                    frameId = "boom_middle_v_";
+                    boom_middle_v[i] = new Sprite(id[frameId + index]);                         
+                }
+                
+                for(var i = 0;i < 12; i++) {
+                    boom_center[i].x = i * 100;
+                    stage.addChild(boom_center[i]);
+                    
+                    
+                    boom_coffin[i].x = i * 100;
+                    boom_coffin[i].y = 100;
+                    boom_coffin[i].width = 100;
+                    boom_coffin[i].height = 100;
+                    stage.addChild(boom_coffin[i]);
+                    
+                    boom_end_b[i].x = i * 100;
+                    boom_end_b[i].y = 300;
+                    stage.addChild(boom_end_b[i]);
+                    
+                    boom_end_l[i].x = i * 100;
+                    boom_end_l[i].y = 500;
+                    stage.addChild(boom_end_l[i]);
+                }
+                
+                
+                
                 renderer.render(stage);
             }
+            
+            
+            
+            
+            
+            
+            
+            
+            
             
             
         </script>
