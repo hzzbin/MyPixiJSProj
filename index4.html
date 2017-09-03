@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Hello World</title>
+        <style>* {padding: 0; margin: 0}</style>
+    </head>
+    <script src="pixi.js"></script>
+    <body>
+        <script type="text/javascript">
+            //Aliases  代码更简洁，防止Pixi API频繁变动
+            //
+            var Container = PIXI.Container,
+                autoDetectRenderer = PIXI.autoDetectRenderer,
+                loader = PIXI.loader,
+                resources = PIXI.loader.resources,
+                Sprite = PIXI.Sprite,
+                TextureCache = PIXI.utils.TextureCache,
+                ParticleContainer = PIXI.ParticleContainer,
+                Graphics = PIXI.Graphics,
+                Text = PIXI.Text;
+            
+            
+            var stage = new Container(),
+                renderer = autoDetectRenderer(500, 500);
+            document.body.appendChild(renderer.view);
+            
+            renderer.resize(window.innerWidth, window.innerHeight);
+            
+            renderer.backgroundColor = 0x061239;
+            
+            loader.add("img/head.jpg").add("img/Boom.json").on("progress", loadProgressHandler).load(setup);
+            
+            function loadProgressHandler(loader, resource) {
+                //Display the file `url` currently being loaded
+                console.log("loading: " + resource.url);
+                
+                //Display the percentage of files currently loaded
+                console.log("loading: " + loader.progress + "%");
+            }
+            
+            function setup() {
+                var id = resources["img/head.jpg"].texture;
+                var head1 = new Sprite(id);
+                var head2 = new Sprite(id);
+                var head3 = new Sprite(id);
+                
+                head1.position.set(10, 10);
+                head2.position.set(32, 32);
+                head3.position.set(64, 64);
+                
+                head1.width = 40;
+                head1.height = 40;
+                head2.width = 40;
+                head2.height = 40;
+                head3.width = 40;
+                head3.height = 40;
+                
+                var heads = new Container();
+                
+                heads.addChild(head1);
+                heads.addChild(head2);
+                heads.addChild(head3);
+                
+                heads.position.set(400, 500);
+                heads.scale.set(4,4);
+                
+                console.log(head1.getGlobalPosition().x);
+                console.log(head1.getGlobalPosition().y);
+                
+                var superFastSprites = new ParticleContainer();
+                
+
+                stage.addChild(heads);
+                
+                //Text inherit Sprite
+                var message = new Text(
+                "Hello,ZhangBin",
+                {fontFamily: "Arial", fontSize: 32, fill: "white"});
+                
+                message.text += " 辛苦了!";
+                
+                message.position.set(400, 400);
+                stage.addChild(message);
+                
+                
+                
+                renderer.render(stage);
+            }  
+            
+            
+            //限制角色移动范围
+            function contain(sprite, container) {
+
+                  var collision = undefined;
+
+                  //Left
+                  if (sprite.x < container.x) {
+                    sprite.x = container.x;
+                    collision = "left";
+                  }
+
+                  //Top
+                  if (sprite.y < container.y) {
+                    sprite.y = container.y;
+                    collision = "top";
+                  }
+
+                  //Right
+                  if (sprite.x + sprite.width > container.width) {
+                    sprite.x = container.width - sprite.width;
+                    collision = "right";
+                  }
+
+                  //Bottom
+                  if (sprite.y + sprite.height > container.height) {
+                    sprite.y = container.height - sprite.height;
+                    collision = "bottom";
+                  }
+
+                  //Return the `collision` value
+                  return collision;
+            }
+            
+        </script>
+    </body>
+</html>
