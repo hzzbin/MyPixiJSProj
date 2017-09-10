@@ -8,29 +8,362 @@
     <script src="pixi.js"></script>
     <body>
         <script type="text/javascript">
+            //Aliases  代码更简洁，防止Pixi API频繁变动
+            //
+            var Container = PIXI.Container,
+                autoDetectRenderer = PIXI.autoDetectRenderer,
+                loader = PIXI.loader,
+                resources = PIXI.loader.resources,
+                Sprite = PIXI.Sprite,
+                TextureCache = PIXI.utils.TextureCache,
+                ParticleContainer = PIXI.ParticleContainer,
+                Graphics = PIXI.Graphics,
+                Text = PIXI.Text,
+                AnimatedSprite = PIXI.extras.AnimatedSprite;
             
-            var app = new PIXI.Application(800, 600, {backgroundColor : 0x1099bb});
-            document.body.appendChild(app.view);
+            
+            //constants
+            var Map_Width = 100;
+            var Map_Height = 50;
+            var Brick_Size = 50;
+            var Wall_Size = 25;
+            var Wall_Width = 25;
+            var Wall_Height = 50;
+            var Soldier_Size = 50;
+            var Offset = 25;
+            var ExplosionTextures = [];
+            var BombTextures = [];
+            var Bomb;
+            var BackgroundContainer;
+            var Soldier = {};
+            
+            var LastTime = undefined;
+            
+            
+            var stage = new Container(),
+                renderer = autoDetectRenderer(Map_Width*Brick_Size + Wall_Size * 2, Map_Height*Brick_Size + Wall_Size * 2);
+            document.body.appendChild(renderer.view);
+            
+            renderer.backgroundColor = 0x000000;
+            
+            var bombImgArray = [];
+            for(var i = 1;i < 8; i++) {
+                bombImgArray.push("img/bomb_000" + i + ".png");
+            }
+            
+            var wallImgArray = ["img/wall_horiz.png","img/wall_horiz_end_l.png","img/wall_horiz_end_r.png",
+                               "img/wall_vert_l.png", "img/wall_vert_end_l.png", "img/wall_vert_end_r.png","img/wall_vert_r.png","img/ground.png"];
+            
+            loader.add("img/brick.png")
+                .add(wallImgArray)
+                .add("img/soldier.png")
+                .add(bombImgArray)
+                .add("img/mc.json")
+                .on("progress", loadProgressHandler).load(setup);
+            
+            function loadProgressHandler(loader, resource) {
+                //Display the file `url` currently being loaded
+                console.log("loading: " + resource.url);
+                
+                //Display the percentage of files currently loaded
+                console.log("loading: " + loader.progress + "%");
+            }
+            
+            function setup() {
+                //create background
+                BackgroundContainer = new Container();
+                var groundTex = resources["img/ground.png"].texture;
+                var brickTex = resources["img/brick.png"].texture;
+                var wall_horiz_l_tex = resources["img/wall_horiz_end_l.png"].texture;
+                var wall_horiz_r_tex = resources["img/wall_horiz_end_r.png"].texture;
+                var wall_horiz_tex = resources["img/wall_horiz.png"].texture;
+                
+                var wall_vert_l_tex = resources["img/wall_vert_l.png"].texture;
+                //var wall_vert_end_l = resources["img/wall_vert_end_l.png"].texture;
+                //var wall_vert_end_r = resources["img/wall_vert_end_r.png"].texture;
+                var wall_vert_r_tex = resources["img/wall_vert_r.png"].texture;
+                
+                var backgroundSprites = [];
+                var offset = Wall_Size;
+                
+                
+                for(var y = 0; y < Map_Height; y++) {
+                    for(var x = 0; x < Map_Width; x++) {
+                        var sprite = new Sprite(brickTex);
+                        sprite.width = Brick_Size;
+                        sprite.height = Brick_Size;
+                        sprite.position.set(x * Brick_Size + offset, y * Brick_Size + offset);
+                        BackgroundContainer.addChild(sprite);
+                    }
+                }
+                
+                for(var i = 0; i <= Map_Width; i++) {
+                    if(i == 0) {
+                        var wall_l = new Sprite(wall_horiz_l_tex);
+                        wall_l.width = 50;
+                        wall_l.height = 35;
+                        wall_l.position.set(i * 50, -10);
+                        BackgroundContainer.addChild(wall_l);
+                        
+                    } else if(i == Map_Width) {
+                        var wall_r = new Sprite(wall_horiz_r_tex);
+                        wall_r.width = 50;
+                        wall_r.height = 35;
+                        wall_r.position.set(i * 50, -10);
+                        BackgroundContainer.addChild(wall_r);
+                        
+                    } else {
+                        var wall = new Sprite(wall_horiz_tex);
+                        wall.width = 50;
+                        wall.height = 35;
+                        wall.position.set(i * 50, -10);
+                        BackgroundContainer.addChild(wall);
+                    }
+                }
+                
+                for(var i = 0; i < Map_Height; i++) {
+                    
+                    var wall_vert_l = new Sprite(wall_vert_l_tex);
+                    wall_vert_l.width = 35;
+                    wall_vert_l.height = 50;
+                    wall_vert_l.position.set(-5, i * 50 + 25);
+                    BackgroundContainer.addChild(wall_vert_l);
 
-            // create a new Sprite from an image path
-            var bunny = PIXI.Sprite.fromImage('img/head.png')
+                }
+                    
+                for(var i = 0; i < Map_Height; i++) {
+                    
+                    var wall_vert_r = new Sprite(wall_vert_r_tex);
+                    wall_vert_r.width = 38;
+                    wall_vert_r.height = 50;
+                    wall_vert_r.position.set(20 + Map_Width * Brick_Size, i * 50 + 25);
+                    BackgroundContainer.addChild(wall_vert_r);
 
-            // center the sprite's anchor point
-            bunny.anchor.set(0.5);
+                }
+                
+                for(var i = 0; i <= Map_Width/2; i++) {
+                    var ground = new Sprite(groundTex);
+                    ground.width = 100;
+                    ground.height = 50;
+                    ground.position.set(i * 100, Map_Height * Brick_Size);
+                    BackgroundContainer.addChild(ground);
+                }
+                
+                stage.addChild(BackgroundContainer);
+                
+                
+                
+                //create soldier
+                var soldierTex = resources["img/soldier.png"].texture;
+                Soldier.sprite = new Sprite(soldierTex);
+                Soldier.sprite.position.set(Offset, Offset);
+                Soldier.sprite.width = Soldier_Size;
+                Soldier.sprite.height = Soldier_Size;
+                
+                Soldier.vx = 0;
+                Soldier.vy = 0;
+                
+                stage.addChild(Soldier.sprite); 
+                
+                
+                //create bomb anim
+                for(i = 1; i < 8; i++) {
+                    var tex = resources["img/bomb_000" + i + ".png"].texture;
+                    BombTextures.push(tex);
+                }
+                
+                Bomb = new AnimatedSprite(BombTextures);
+                Bomb.width = Brick_Size;
+                Bomb.height = Brick_Size;
+                
+                Bomb.position.set(Brick_Size + Offset, Offset);
+                Bomb.animationSpeed = 0.2;
+                //Bomb.gotoAndPlay(3);
+                //Bomb.anchor.x = 0.5;
+                //Bomb.anchor.y = 0.5;
+                
+                stage.addChild(Bomb);
+            
+                //renderer.render(stage);
+                
+                play();
+                
+                
+                
+                
+                //Capture the keyboard arrow keys
+                var left = keyboard(37),
+                    up = keyboard(38),
+                    right = keyboard(39),
+                    down = keyboard(40);
+            
+                
+                //Left arrow key `press` method
+                left.press = function() {
+    
+                    //Change the cat's velocity when the key is pressed
+                    if(left.isUp) {
+                        Soldier.vx = -1;
+                        Soldier.vy = 0;
+                    }
+                };
 
-            // move the sprite to the center of the screen
-            bunny.x = app.renderer.width / 2;
-            bunny.y = app.renderer.height / 2;
+                //Left arrow key `release` method
+                left.release = function() {
 
-            app.stage.addChild(bunny);
+                    //If the left arrow has been released, and the right arrow isn't down,
+                    //and the cat isn't moving vertically:
+                    //Stop the cat
+                    //if (!right.isDown && Soldier.vy === 0) {
+                    //    Soldier.vx = 0;
+                    //}
+                };
 
-            // Listen for animate update
-            app.ticker.add(function(delta) {
-                // just for fun, let's rotate mr rabbit a little
-                // delta is 1 if running at 100% performance
-                // creates frame-independent tranformation
-                bunny.rotation += 0.1 * delta;
-            });
+                //Up
+                up.press = function() {
+                    //if(up.isUp) {
+                        Soldier.vy = -1;
+                        Soldier.vx = 0;
+                    //}
+                };
+                up.release = function() {
+                    //if (!down.isDown && Soldier.vx === 0) {
+                        //Soldier.vy = 0;
+                    //}
+                };
+
+                //Right
+                right.press = function() {
+                    //if(right.isUp) {
+                        Soldier.vx = 1;
+                        Soldier.vy = 0;
+                    //} 
+                };
+                right.release = function() {
+                    //if (!left.isDown && Soldier.vy === 0) {
+                        //Soldier.vx = 0;
+                    //}
+                };
+
+                //Down
+                down.press = function() {
+                    //if(down.isUp) {
+                        Soldier.vy = 1;
+                        Soldier.vx = 0;
+                    //}
+                };
+                down.release = function() {
+                    //if (!up.isDown && Soldier.vx === 0) {
+                        //Soldier.vy = 0;
+                    //}
+                };
+                
+                //setInterval(play, 17);
+            }
+            
+            function play() {                
+                
+                Bomb.play();
+                
+//                Soldier.sprite.x += Brick_Size * Soldier.vx;
+//                Soldier.vx = 0;
+//                Soldier.sprite.y += Brick_Size * Soldier.vy;                   
+//                Soldier.vy = 0;
+                
+                if(LastTime == undefined) {
+                    Soldier.sprite.x += Brick_Size * Soldier.vx;
+                    Soldier.vx = 0;
+                    Soldier.sprite.y += Brick_Size * Soldier.vy;
+                    Soldier.vy = 0;
+                    LastTime = new Date().getTime();
+                } else {
+                    if((new Date().getTime() - LastTime) > 1000) {
+                        Soldier.sprite.x += Brick_Size * Soldier.vx;
+                        Soldier.vx = 0;
+                        Soldier.sprite.y += Brick_Size * Soldier.vy;
+                        Soldier.vy = 0;
+                        LastTime = new Date().getTime();
+                    } else {
+                        Soldier.vx = 0;
+                        Soldier.vy = 0;
+                    }
+                }
+                
+                renderer.render(stage);
+                
+                requestAnimationFrame(play);
+                
+            }
+            
+            function keyboard(keycode) {
+                var key = {};
+                key.code = keycode;
+                key.isDown = false;
+                key.isUp = true;
+                key.press = undefined;
+                key.release = undefined;
+                
+                //the `downHandler`
+                key.downHandler = function(event) {
+                    if (event.keyCode === key.code) {
+                        if (key.isUp && key.press) key.press();
+                        key.isDown = true;
+                        key.isUp = false;
+                    }
+                    event.preventDefault();
+                };
+                
+                //the `upHandler`
+                key.upHandler = function(event) {
+                    if (event.keyCode === key.code) {
+                        if (key.isDown && key.release) key.release();
+                        key.isDown = false;
+                        key.isUp = true;
+                    }
+                    event.preventDefault();
+                };
+                
+                window.addEventListener("keydown", key.downHandler.bind(key), false);
+                
+                window.addEventListener("keyup", key.upHandler.bind(key), false);
+                
+                return key;
+                
+            }
+            
+            
+            //限制角色移动范围
+            function contain(sprite, container) {
+
+                  var collision = undefined;
+
+                  //Left
+                  if (sprite.x < container.x) {
+                    sprite.x = container.x;
+                    collision = "left";
+                  }
+
+                  //Top
+                  if (sprite.y < container.y) {
+                    sprite.y = container.y;
+                    collision = "top";
+                  }
+
+                  //Right
+                  if (sprite.x + sprite.width > container.width) {
+                    sprite.x = container.width - sprite.width;
+                    collision = "right";
+                  }
+
+                  //Bottom
+                  if (sprite.y + sprite.height > container.height) {
+                    sprite.y = container.height - sprite.height;
+                    collision = "bottom";
+                  }
+
+                  //Return the `collision` value
+                  return collision;
+            }
             
         </script>
     </body>
