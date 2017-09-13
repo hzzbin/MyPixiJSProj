@@ -217,6 +217,8 @@
                     //if (!right.isDown && Soldier.vy === 0) {
                     //    Soldier.vx = 0;
                     //}
+                    Soldier.vx = 0;
+                    Soldier.vy = 0;
                 };
 
                 //Up
@@ -230,6 +232,8 @@
                     //if (!down.isDown && Soldier.vx === 0) {
                         //Soldier.vy = 0;
                     //}
+                    Soldier.vx = 0;
+                    Soldier.vy = 0;
                 };
 
                 //Right
@@ -243,6 +247,8 @@
                     //if (!left.isDown && Soldier.vy === 0) {
                         //Soldier.vx = 0;
                     //}
+                    Soldier.vx = 0;
+                    Soldier.vy = 0;
                 };
 
                 //Down
@@ -256,6 +262,8 @@
                     //if (!up.isDown && Soldier.vx === 0) {
                         //Soldier.vy = 0;
                     //}
+                    Soldier.vx = 0;
+                    Soldier.vy = 0;
                 };
                 
                 //setInterval(play, 17);
@@ -272,16 +280,16 @@
                 
                 if(LastTime == undefined) {
                     Soldier.sprite.x += Brick_Size * Soldier.vx;
-                    Soldier.vx = 0;
+                    //Soldier.vx = 0;
                     Soldier.sprite.y += Brick_Size * Soldier.vy;
-                    Soldier.vy = 0;
+                    //Soldier.vy = 0;
                     LastTime = new Date().getTime();
                 } else {
-                    if((new Date().getTime() - LastTime) > 1000) {
+                    if((new Date().getTime() - LastTime) > 200) {
                         Soldier.sprite.x += Brick_Size * Soldier.vx;
-                        Soldier.vx = 0;
+                        //Soldier.vx = 0;
                         Soldier.sprite.y += Brick_Size * Soldier.vy;
-                        Soldier.vy = 0;
+                        //Soldier.vy = 0;
                         LastTime = new Date().getTime();
                     } else {
                         Soldier.vx = 0;
@@ -306,7 +314,8 @@
                 //the `downHandler`
                 key.downHandler = function(event) {
                     if (event.keyCode === key.code) {
-                        if (key.isUp && key.press) key.press();
+                        //if (key.isUp && key.press) key.press();
+                        if (key.press) key.press();
                         key.isDown = true;
                         key.isUp = false;
                     }
@@ -316,7 +325,8 @@
                 //the `upHandler`
                 key.upHandler = function(event) {
                     if (event.keyCode === key.code) {
-                        if (key.isDown && key.release) key.release();
+                        //if (key.isDown && key.release) key.release();
+                        if (key.release) key.release();
                         key.isDown = false;
                         key.isUp = true;
                     }
