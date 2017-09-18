@@ -4,6 +4,16 @@ var path = require('path');
 var mime = require('mime');
 var cache = {};       //缓存文件内容的对象
 
+var socketio = require('socket.io');
+var io;
+var guestNumber = 1;
+var nickNames = {};
+var namesUsed = [];
+var currentRoom = {};
+
+var globalUserInputs = [];
+var updateTime = 100；//10 updates per second
+
 function send404(response) {
   response.writeHead(404, {'Content-Type': 'text/plain'});
   response.write('Error 404: resource not found.');
@@ -56,8 +66,26 @@ server.listen(3000, function() {
   console.log("Server listening on port 3000.");
 });
 
-var chatServer = require('./lobby');
-lobby.listen(server);
+io = socketio(server);
+
+io.on('connection', function(socket) {
+    console.log('a user connected');
+    socket.broadcast.emit('chat message', "hi,I am a new guy!");
+    
+    socket.on('disconnect', function(){
+        console.log('user disconnected')
+    });
+    
+    socket.on('chat message', function(msg){
+        console.log('message: ' + msg);
+        io.emit('chat message', msg);
+    })
+});
+
+
+
+
+
 
 
 

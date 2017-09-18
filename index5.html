@@ -38,6 +38,16 @@
             var Soldier = {};
             
             var LastTime = undefined;
+            var GlobalInputs = [];
+            var indexToProcess = 0;
+            var GlobalBombs = [];
+            
+            //Capture the keyboard arrow keys
+            var left = keyboard(37),
+                up = keyboard(38),
+                right = keyboard(39),
+                down = keyboard(40),
+                space = keyboard(32);
             
             
             var stage = new Container(),
@@ -172,135 +182,168 @@
                     BombTextures.push(tex);
                 }
                 
-                Bomb = new AnimatedSprite(BombTextures);
-                Bomb.width = Brick_Size;
-                Bomb.height = Brick_Size;
+                //Bomb = new AnimatedSprite(BombTextures);
+                //Bomb.width = Brick_Size;
+                //Bomb.height = Brick_Size;
                 
-                Bomb.position.set(Brick_Size + Offset, Offset);
-                Bomb.animationSpeed = 0.2;
+                //Bomb.position.set(Brick_Size + Offset, Offset);
+                //Bomb.animationSpeed = 0.2;
                 //Bomb.gotoAndPlay(3);
                 //Bomb.anchor.x = 0.5;
                 //Bomb.anchor.y = 0.5;
                 
-                stage.addChild(Bomb);
+                //stage.addChild(Bomb);
             
                 //renderer.render(stage);
                 
+/*                
+            
+                
+//                //Left arrow key `press` method
+//                left.press = function() {
+//    
+//                    //Change the cat's velocity when the key is pressed
+//                    if(left.isUp) {
+//                        Soldier.vx = -1;
+//                        Soldier.vy = 0;
+//                    }
+//                };
+//
+//                //Left arrow key `release` method
+//                left.release = function() {
+//
+//                    //If the left arrow has been released, and the right arrow isn't down,
+//                    //and the cat isn't moving vertically:
+//                    //Stop the cat
+//                    if (!right.isDown && Soldier.vy === 0) {
+//                        Soldier.vx = 0;
+//                    }
+//                };
+//
+//                //Up
+//                up.press = function() {
+//                    if(up.isUp) {
+//                        Soldier.vy = -1;
+//                        Soldier.vx = 0;
+//                    }
+//                };
+//                up.release = function() {
+//                    if (!down.isDown && Soldier.vx === 0) {
+//                        Soldier.vy = 0;
+//                    }
+//                };
+//
+//                //Right
+//                right.press = function() {
+//                    if(right.isUp) {
+//                        Soldier.vx = 1;
+//                        Soldier.vy = 0;
+//                    } 
+//                };
+//                right.release = function() {
+//                    if (!left.isDown && Soldier.vy === 0) {
+//                        Soldier.vx = 0;
+//                    }
+//                };
+//
+//                //Down
+//                down.press = function() {
+//                    if(down.isUp) {
+//                        Soldier.vy = 1;
+//                        Soldier.vx = 0;
+//                    }
+//                };
+//                down.release = function() {
+//                    if (!up.isDown && Soldier.vx === 0) {
+//                        Soldier.vy = 0;
+//                    }
+//                };
+*/
+                
+                setInterval(sampleInput, 100);
+                
                 play();
                 
-                
-                
-                
-                //Capture the keyboard arrow keys
-                var left = keyboard(37),
-                    up = keyboard(38),
-                    right = keyboard(39),
-                    down = keyboard(40);
-            
-                
-                //Left arrow key `press` method
-                left.press = function() {
-    
-                    //Change the cat's velocity when the key is pressed
-                    if(left.isUp) {
-                        Soldier.vx = -1;
-                        Soldier.vy = 0;
-                    }
-                };
 
-                //Left arrow key `release` method
-                left.release = function() {
-
-                    //If the left arrow has been released, and the right arrow isn't down,
-                    //and the cat isn't moving vertically:
-                    //Stop the cat
-                    //if (!right.isDown && Soldier.vy === 0) {
-                    //    Soldier.vx = 0;
-                    //}
-                    Soldier.vx = 0;
-                    Soldier.vy = 0;
-                };
-
-                //Up
-                up.press = function() {
-                    //if(up.isUp) {
-                        Soldier.vy = -1;
-                        Soldier.vx = 0;
-                    //}
-                };
-                up.release = function() {
-                    //if (!down.isDown && Soldier.vx === 0) {
-                        //Soldier.vy = 0;
-                    //}
-                    Soldier.vx = 0;
-                    Soldier.vy = 0;
-                };
-
-                //Right
-                right.press = function() {
-                    //if(right.isUp) {
-                        Soldier.vx = 1;
-                        Soldier.vy = 0;
-                    //} 
-                };
-                right.release = function() {
-                    //if (!left.isDown && Soldier.vy === 0) {
-                        //Soldier.vx = 0;
-                    //}
-                    Soldier.vx = 0;
-                    Soldier.vy = 0;
-                };
-
-                //Down
-                down.press = function() {
-                    //if(down.isUp) {
-                        Soldier.vy = 1;
-                        Soldier.vx = 0;
-                    //}
-                };
-                down.release = function() {
-                    //if (!up.isDown && Soldier.vx === 0) {
-                        //Soldier.vy = 0;
-                    //}
-                    Soldier.vx = 0;
-                    Soldier.vy = 0;
-                };
-                
-                //setInterval(play, 17);
             }
             
-            function play() {                
-                
-                Bomb.play();
-                
-//                Soldier.sprite.x += Brick_Size * Soldier.vx;
-//                Soldier.vx = 0;
-//                Soldier.sprite.y += Brick_Size * Soldier.vy;                   
-//                Soldier.vy = 0;
-                
-                if(LastTime == undefined) {
-                    Soldier.sprite.x += Brick_Size * Soldier.vx;
-                    //Soldier.vx = 0;
-                    Soldier.sprite.y += Brick_Size * Soldier.vy;
-                    //Soldier.vy = 0;
-                    LastTime = new Date().getTime();
-                } else {
-                    if((new Date().getTime() - LastTime) > 200) {
-                        Soldier.sprite.x += Brick_Size * Soldier.vx;
-                        //Soldier.vx = 0;
-                        Soldier.sprite.y += Brick_Size * Soldier.vy;
-                        //Soldier.vy = 0;
-                        LastTime = new Date().getTime();
-                    } else {
-                        Soldier.vx = 0;
-                        Soldier.vy = 0;
+            function sampleInput() {
+                if(left.isDown) {
+                    var input = {
+                       name:"left",
+                        x:-1,
+                        y:0 
                     }
+                    GlobalInputs.push(input);
+                } else if(right.isDown) {
+                    var input = {
+                       name:"right",
+                        x:1,
+                        y:0 
+                    }
+                    GlobalInputs.push(input);
+                } else if(up.isDown) {
+                    var input = {
+                       name:"up",
+                        x:0,
+                        y:-1 
+                    }
+                    GlobalInputs.push(input);
+                } else if(down.isDown) {
+                    var input = {
+                       name:"down",
+                        x:0,
+                        y:1 
+                    }
+                    GlobalInputs.push(input);
                 }
                 
+                //put a bomb
+                if(space.isDown) {
+                    var input = {
+                       name:"space",
+                        x:0,
+                        y:0
+                    }
+                    GlobalInputs.push(input);
+                }
+                //console.log("GlobalInputs----->");
+                //console.log(GlobalInputs);
+                //console.log("indexToProcess----->");
+                //console.log(indexToProcess);
+            }
+            
+            
+            function play() {   
+                
+                //Bomb.play();
+                for(var i = 0; i < GlobalBombs.length; i++) {
+                    
+                    GlobalBombs[i].play();
+                }
+                
+                //process inputs
+                if(indexToProcess < GlobalInputs.length) {
+                    var i = GlobalInputs[indexToProcess ++ ];
+                    if(i.name != "space") {
+                        Soldier.sprite.x += Brick_Size * i.x;
+                        Soldier.sprite.y += Brick_Size * i.y;
+                        console.log("Soldier.position.update");
+                    } else {
+                        var bomb = new AnimatedSprite(BombTextures);
+                        bomb.width = Brick_Size;
+                        bomb.height = Brick_Size;
+
+                        bomb.position.set(Soldier.sprite.x, Soldier.sprite.y);
+                        bomb.animationSpeed = 0.2;
+                        GlobalBombs.push(bomb);
+                        stage.addChild(bomb);
+                    }
+                }
+                              
                 renderer.render(stage);
                 
                 requestAnimationFrame(play);
-                
             }
             
             function keyboard(keycode) {
@@ -315,7 +358,6 @@
                 key.downHandler = function(event) {
                     if (event.keyCode === key.code) {
                         //if (key.isUp && key.press) key.press();
-                        if (key.press) key.press();
                         key.isDown = true;
                         key.isUp = false;
                     }
@@ -326,7 +368,6 @@
                 key.upHandler = function(event) {
                     if (event.keyCode === key.code) {
                         //if (key.isDown && key.release) key.release();
-                        if (key.release) key.release();
                         key.isDown = false;
                         key.isUp = true;
                     }
