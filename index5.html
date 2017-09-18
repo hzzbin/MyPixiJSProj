@@ -48,7 +48,7 @@
                 MapProperty[i] = new Array();
                 for(var j = 0; j < Map_Height; j++) {
                     var prop = {};
-                    prop.type = 0; // 0:brick; 1:bomb; 2:Box
+                    prop.obj = 0; // 0:brick; 1:bomb; 2:Explosion
                     prop.posX = i;
                     prop.posY = j;
                     prop.drawX = i * Brick_Size + Wall_Size;
@@ -56,6 +56,8 @@
                     MapProperty[i][j] = prop;
                 }
             }
+            
+            //console.log(MapProperty);
             
             
             
@@ -65,6 +67,13 @@
                 right = keyboard(39),
                 down = keyboard(40),
                 space = keyboard(32);
+            
+            left.delta = 150;
+            up.delta = 150;
+            right.delta = 150;
+            down.delta = 150;
+            space.delta = 150;
+            
             
             
             var stage = new Container(),
@@ -185,7 +194,7 @@
                 Soldier.sprite = new Sprite(soldierTex);
                 Soldier.posX = 0;
                 Soldier.posY = 0;
-                var prop = MapProperty[Soldier.posX][Sodier.posY];
+                var prop = MapProperty[Soldier.posX][Soldier.posY];
                 Soldier.sprite.position.set(prop.drawX, prop.drawY);
                 Soldier.sprite.width = Soldier_Size;
                 Soldier.sprite.height = Soldier_Size;
@@ -280,7 +289,7 @@
 //                };
 */
                 
-                setInterval(sampleInput, 100);
+                //setInterval(sampleInput, 50);
                 
                 play();
                 
@@ -294,28 +303,68 @@
                         x:-1,
                         y:0 
                     }
-                    GlobalInputs.push(input);
+                    var delta = 50000;
+                    var nowTime = Date.now();
+                    if(left.lastProcessTime != undefined) {
+                        delta = nowTime - left.lastProcessTime;
+                    } else {
+                        left.lastProcessTime = nowTime;
+                    }
+                    if(testInput(input) && delta >= left.delta) {
+                        left.lastProcessTime = nowTime;
+                        GlobalInputs.push(input);
+                    }
                 } else if(right.isDown) {
                     var input = {
                        name:"right",
                         x:1,
                         y:0 
                     }
-                    GlobalInputs.push(input);
+                    var delta = 50000;
+                    var nowTime = Date.now();
+                    if(right.lastProcessTime != undefined) {
+                        delta = nowTime - right.lastProcessTime;
+                    } else {
+                        right.lastProcessTime = nowTime;
+                    }
+                    if(testInput(input) && delta >= right.delta) {
+                        right.lastProcessTime = nowTime;
+                        GlobalInputs.push(input);
+                    }
                 } else if(up.isDown) {
                     var input = {
                        name:"up",
                         x:0,
                         y:-1 
                     }
-                    GlobalInputs.push(input);
+                    var delta = 50000;
+                    var nowTime = Date.now();
+                    if(up.lastProcessTime != undefined) {
+                        delta = nowTime - up.lastProcessTime;
+                    } else {
+                        up.lastProcessTime = nowTime;
+                    }
+                    if(testInput(input) && delta >= up.delta) {
+                        up.lastProcessTime = nowTime;
+                        GlobalInputs.push(input);
+                    }
                 } else if(down.isDown) {
                     var input = {
                        name:"down",
                         x:0,
                         y:1 
                     }
-                    GlobalInputs.push(input);
+                    var delta = 50000;
+                    var nowTime = Date.now();
+                    if(down.lastProcessTime != undefined) {
+                        delta = nowTime - down.lastProcessTime;
+                    } else {
+                        down.lastProcessTime = nowTime;
+                    }
+                    if(testInput(input) && delta >= down.delta) {
+                        down.lastProcessTime = nowTime;
+                        GlobalInputs.push(input);
+                    }
                 }
                 
                 //put a bomb
@@ -325,16 +374,39 @@
                         x:0,
                         y:0
                     }
-                    GlobalInputs.push(input);
+                    var delta = 50000;
+                    var nowTime = Date.now();
+                    if(space.lastProcessTime != undefined) {
+                        delta = nowTime - space.lastProcessTime;
+                    } else {
+                        space.lastProcessTime = nowTime;
+                    }
+                    if(testInput(input) && delta >= space.delta) {
+                        space.lastProcessTime = nowTime;
+                        GlobalInputs.push(input);
+                    }
                 }
-                //console.log("GlobalInputs----->");
-                //console.log(GlobalInputs);
-                //console.log("indexToProcess----->");
-                //console.log(indexToProcess);
+            }
+            
+            function testInput(input) {
+                if(input.name != "space") {
+                    var testX = Soldier.posX + input.x;
+                    var testY = Soldier.posY + input.y;
+                    if(testX < 0 || testX >= Map_Width || testY < 0 || testY >= Map_Height)
+                        return false;
+                    if(MapProperty[testX][testY].obj != 0)
+                        return false;
+                } else {
+                    if(MapProperty[Soldier.posX][Soldier.posY].obj != 0)
+                        return false;
+                }
+                return true;
             }
             
             
-            function play() {   
+            function play() { 
+                //
+                sampleInput();
                 
                 //Bomb.play();
                 for(var i = 0; i < GlobalBombs.length; i++) {
@@ -346,20 +418,22 @@
                 if(indexToProcess < GlobalInputs.length) {
                     var i = GlobalInputs[indexToProcess ++ ];
                     if(i.name != "space") {
-                        if(MapArray[Soldier][])
-                        Soldier.sprite.x += Brick_Size * i.x;
-                        Soldier.sprite.y += Brick_Size * i.y;
-                        console.log("Soldier.position.update");
+                        Soldier.posX += i.x;
+                        Soldier.posY += i.y;
                     } else {
                         var bomb = new AnimatedSprite(BombTextures);
                         bomb.width = Brick_Size;
                         bomb.height = Brick_Size;
-
+                        
+                        MapProperty[Soldier.posX][Soldier.posY].obj = 1;
+                        
                         bomb.position.set(Soldier.sprite.x, Soldier.sprite.y);
                         bomb.animationSpeed = 0.2;
                         GlobalBombs.push(bomb);
                         stage.addChild(bomb);
                     }
+                    var prop = MapProperty[Soldier.posX][Soldier.posY];
+                    Soldier.sprite.position.set(prop.drawX, prop.drawY);
                 }
                               
                 renderer.render(stage);
@@ -375,6 +449,7 @@
                 key.press = undefined;
                 key.release = undefined;
                 key.lastProcessTime = undefined;
+                key.delta = 0;
                 
                 //the `downHandler`
                 key.downHandler = function(event) {
