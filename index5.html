@@ -42,6 +42,23 @@
             var indexToProcess = 0;
             var GlobalBombs = [];
             
+            var MapProperty = new Array(); //坐标{x，y}
+            
+            for(var i = 0; i < Map_Width; i++) {
+                MapProperty[i] = new Array();
+                for(var j = 0; j < Map_Height; j++) {
+                    var prop = {};
+                    prop.type = 0; // 0:brick; 1:bomb; 2:Box
+                    prop.posX = i;
+                    prop.posY = j;
+                    prop.drawX = i * Brick_Size + Wall_Size;
+                    prop.drawY = j * Brick_Size + Wall_Size
+                    MapProperty[i][j] = prop;
+                }
+            }
+            
+            
+            
             //Capture the keyboard arrow keys
             var left = keyboard(37),
                 up = keyboard(38),
@@ -166,7 +183,10 @@
                 //create soldier
                 var soldierTex = resources["img/soldier.png"].texture;
                 Soldier.sprite = new Sprite(soldierTex);
-                Soldier.sprite.position.set(Offset, Offset);
+                Soldier.posX = 0;
+                Soldier.posY = 0;
+                var prop = MapProperty[Soldier.posX][Sodier.posY];
+                Soldier.sprite.position.set(prop.drawX, prop.drawY);
                 Soldier.sprite.width = Soldier_Size;
                 Soldier.sprite.height = Soldier_Size;
                 
@@ -326,6 +346,7 @@
                 if(indexToProcess < GlobalInputs.length) {
                     var i = GlobalInputs[indexToProcess ++ ];
                     if(i.name != "space") {
+                        if(MapArray[Soldier][])
                         Soldier.sprite.x += Brick_Size * i.x;
                         Soldier.sprite.y += Brick_Size * i.y;
                         console.log("Soldier.position.update");
@@ -353,6 +374,7 @@
                 key.isUp = true;
                 key.press = undefined;
                 key.release = undefined;
+                key.lastProcessTime = undefined;
                 
                 //the `downHandler`
                 key.downHandler = function(event) {
