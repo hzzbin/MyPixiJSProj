@@ -406,7 +406,7 @@
             
             function play() { 
                 //
-                sampleInput();
+                //sampleInput();
                 
                 //Bomb.play();
                 for(var i = 0; i < GlobalBombs.length; i++) {
@@ -457,6 +457,7 @@
                         //if (key.isUp && key.press) key.press();
                         key.isDown = true;
                         key.isUp = false;
+                        sampleInput();
                     }
                     event.preventDefault();
                 };
