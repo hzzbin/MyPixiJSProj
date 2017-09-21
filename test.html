@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Hello World</title>
+        <style>* {padding: 0; margin: 0}</style>
+    </head>
+    <script src="pixi.js"></script>
+    <body>
+        <script type="text/javascript">
+//            window.addEventListener("keydown", keydownHandler, false);
+//            
+//            var count = 0;
+//            
+//            function keydownHandler(event) {
+//                if(event.keyCode === 32) {
+//                    console.log("Space key pressed" + count++ + "  time:"+ Date.now());
+//                }
+//            }
+//            
+//            let space ={
+//                code: 32,
+//                isDown: false,
+//                isUp: true,
+//                downHandler(event) {
+//                    if(event.keyCode === this.code) {
+//                        this.isDown = true;
+//                        this.isUp = false;
+//                    }
+//                },
+//                upHandler(event) {
+//                    if(event.keycode === this.code) {
+//                        this.isUp = true;
+//                        this.isDown = false;
+//                    }
+//                }
+//            }
+//            
+//            window.addEventListener("keydown", space.downHandler.bind(space), false);
+//            window.addEventListener("keyup", space.upHandler.bind(space), false);
+            
+            window.addEventListener("mousedown", downHandler, false);
+            window.addEventListener("mouseup", upHandler, false);
+            
+            var downTime;
+            
+            function downHandler(event) {
+                console.log("Pointer pressed down");
+                downTime = Date.now();
+            }
+            
+            function upHandler(event) {
+                var elapsedTime = Math.abs(downTime - Date.now());
+                if(elapsedTime <= 200) {
+                    console.log("Tap or click!");
+                }
+            }
+            
+            var url = 'http://github.com/vuejs/vue-devtools?seritch=123213f&&&ttt=hhhtt&htk=222';
+            var protocol = window.location.protocol;
+            var path = url.match(/[http:,https:](\/\/\S*)/);
+            console.log(path);
+            
+        </script>
+    </body>
+</html>

@@ -9,7 +9,6 @@
     <body>
         <script type="text/javascript">
             //Aliases  代码更简洁，防止Pixi API频繁变动
-            //
             var Container = PIXI.Container,
                 autoDetectRenderer = PIXI.autoDetectRenderer,
                 loader = PIXI.loader,
@@ -448,30 +447,31 @@
                 key.isUp = true;
                 key.press = undefined;
                 key.release = undefined;
-                key.lastProcessTime = undefined;
-                key.delta = 0;
                 
                 //the `downHandler`
                 key.downHandler = function(event) {
                     if (event.keyCode === key.code) {
-                        //if (key.isUp && key.press) key.press();
+                        if (key.isUp && key.press) key.press();
                         key.isDown = true;
                         key.isUp = false;
-                        sampleInput();
                     }
+                    
+                    //Prevent the event's default behavior
+                    //(such as browser window scrolling)
                     event.preventDefault();
                 };
                 
                 //the `upHandler`
                 key.upHandler = function(event) {
                     if (event.keyCode === key.code) {
-                        //if (key.isDown && key.release) key.release();
+                        if (key.isDown && key.release) key.release();
                         key.isDown = false;
                         key.isUp = true;
                     }
                     event.preventDefault();
                 };
                 
+                //Attach event listeners
                 window.addEventListener("keydown", key.downHandler.bind(key), false);
                 
                 window.addEventListener("keyup", key.upHandler.bind(key), false);
